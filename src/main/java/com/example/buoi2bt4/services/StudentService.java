@@ -2,7 +2,10 @@ package com.example.buoi2bt4.services;
 
 import com.example.buoi2bt4.models.Student;
 import com.example.buoi2bt4.reponsitories.StudentReponsitory;
+import com.example.buoi2bt4.responses.StudentResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,5 +47,17 @@ public class StudentService implements IStudentService {
     @Override
     public void deleteStudent(Long id) {
         studentReponsitory.deleteById(id);
+    }
+
+    @Override
+    public Page<StudentResponse> getStudentReponsitory1(Pageable pageable) {
+        return studentReponsitory.findAll(pageable).map(student -> {
+            return StudentResponse.fromStudent(student);
+        });
+    }
+
+    @Override
+    public List<Student> findByCityAndName(String name) {
+        return studentReponsitory.findByCityAndName(name);
     }
 }

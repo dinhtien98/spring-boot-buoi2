@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,6 +26,7 @@ public class Student extends BaseEntity {
     private Long id;
 
     @NotBlank(message = "tên không được để trống")
+    @Size(min=2,max = 50, message = "tên phải có từ 2 đến 50 ký tự")
     private String name;
 
     @NotBlank(message = "thành phố không được để trống")
