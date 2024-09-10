@@ -22,6 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("${api.prefix}/student")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class StudentController {
     private final StudentService studentService;
     @GetMapping("")
@@ -36,15 +37,15 @@ public class StudentController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<ApiResponse> getAllStudentList(@RequestParam("page") int page,
-                                                         @RequestParam("limit") int limit) {
+    public ResponseEntity<ApiResponse> getAllStudentList(@RequestParam(defaultValue = "0") int page,
+                                                         @RequestParam(defaultValue = "5") int limit) {
         PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("createdAt").ascending());
         Page<StudentResponse> studentResponsePage = studentService.getStudentReponsitory1(pageRequest);
         int totalPages = studentResponsePage.getTotalPages();
         List<StudentResponse> categoryResponseList = studentResponsePage.getContent();
         StudentListResponse studentListResponse = StudentListResponse
                 .builder()
-                .categories(categoryResponseList)
+                .studentResonseList(categoryResponseList)
                 .totalPages(totalPages)
                 .build();
         ApiResponse apiResponse = ApiResponse
