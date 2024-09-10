@@ -42,10 +42,10 @@ public class StudentController {
         PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("createdAt").ascending());
         Page<StudentResponse> studentResponsePage = studentService.getStudentReponsitory1(pageRequest);
         int totalPages = studentResponsePage.getTotalPages();
-        List<StudentResponse> categoryResponseList = studentResponsePage.getContent();
+        List<StudentResponse> studentResponseList = studentResponsePage.getContent();
         StudentListResponse studentListResponse = StudentListResponse
                 .builder()
-                .studentResonseList(categoryResponseList)
+                .studentResonseList(studentResponseList)
                 .totalPages(totalPages)
                 .build();
         ApiResponse apiResponse = ApiResponse
