@@ -39,7 +39,7 @@ public class StudentController {
     @GetMapping("/list")
     public ResponseEntity<ApiResponse> getAllStudentList(@RequestParam(defaultValue = "0") int page,
                                                          @RequestParam(defaultValue = "5") int limit) {
-        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("createdAt").ascending());
+        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("createdAt").descending());
         Page<StudentResponse> studentResponsePage = studentService.getStudentReponsitory1(pageRequest);
         int totalPages = studentResponsePage.getTotalPages();
         List<StudentResponse> studentResponseList = studentResponsePage.getContent();
@@ -73,7 +73,7 @@ public class StudentController {
         ApiResponse apiResponse = ApiResponse
                 .builder()
                 .data(std)
-                .status(HttpStatus.CREATED.value())
+                .status(HttpStatus.OK.value())
                 .message("Success")
                 .build();
         return ResponseEntity.ok(apiResponse);

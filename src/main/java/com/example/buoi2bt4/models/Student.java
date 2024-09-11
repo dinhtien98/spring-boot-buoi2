@@ -32,8 +32,8 @@ public class Student extends BaseEntity {
     @NotBlank(message = "thành phố không được để trống")
     private String city;
 
-    @DateTimeFormat(pattern = "dd-MM-yyyy")
-    @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "dd-MM-yyyy")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "yyyy-MM-dd")
     @Past(message = "phải là 1 ngày trong quá khứ")
     private LocalDate birthday;
 

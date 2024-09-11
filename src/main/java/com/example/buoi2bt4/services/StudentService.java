@@ -41,6 +41,9 @@ public class StudentService implements IStudentService {
     public Student updateStudent(Long id, Student student) {
         Student std =getStudentById(id);
         std.setName(student.getName());
+        std.setCity(student.getCity());
+        std.setBirthday(student.getBirthday());
+        std.setRating(student.getRating());
         return studentReponsitory.save(std);
     }
 
