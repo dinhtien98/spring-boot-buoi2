@@ -1,5 +1,6 @@
 package com.example.buoi2bt4.controllers;
 
+import com.example.buoi2bt4.models.Rating;
 import com.example.buoi2bt4.models.Student;
 import com.example.buoi2bt4.responses.ApiResponse;
 import com.example.buoi2bt4.responses.StudentListResponse;
@@ -124,6 +125,33 @@ public class StudentController {
         ApiResponse apiResponse = ApiResponse
                 .builder()
                 .data(studentService.findByCityAndName(name))
+                .message("Search Success")
+                .status(HttpStatus.OK.value())
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @GetMapping("/search1")
+    public ResponseEntity<ApiResponse> searchStudent1(@RequestParam int startYear,int endYear) {
+        ApiResponse apiResponse = ApiResponse
+                .builder()
+                .data(studentService.findByBirthdayBetween(startYear,endYear))
+                .message("Search Success")
+                .status(HttpStatus.OK.value())
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @GetMapping("/search2")
+    public ResponseEntity<ApiResponse> searchStudent2(
+            @RequestParam(value = "rating", required = false) Rating rating,
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "city", required = false) String city,
+            @RequestParam(value = "startYear", required = false) int startYear,
+            @RequestParam(value = "endYear", required = false) int endYear) {
+        ApiResponse apiResponse = ApiResponse
+                .builder()
+                .data(studentService.searchStudents(rating, name,city,startYear,endYear))
                 .message("Search Success")
                 .status(HttpStatus.OK.value())
                 .build();

@@ -1,5 +1,6 @@
 package com.example.buoi2bt4.services;
 
+import com.example.buoi2bt4.models.Rating;
 import com.example.buoi2bt4.models.Student;
 import com.example.buoi2bt4.reponsitories.StudentReponsitory;
 import com.example.buoi2bt4.responses.StudentResponse;
@@ -62,5 +63,15 @@ public class StudentService implements IStudentService {
     @Override
     public List<Student> findByCityAndName(String name) {
         return studentReponsitory.findByCityAndName(name);
+    }
+
+    @Override
+    public List<Student> findByBirthdayBetween(int startYear, int endYear) {
+        return studentReponsitory.findByBirthdayBetween(startYear, endYear);
+    }
+
+    @Override
+    public List<Student> searchStudents(Rating rating, String name, String city, int startYear, int endYear) {
+        return studentReponsitory.searchStudents(rating, name, city, startYear, endYear);
     }
 }
