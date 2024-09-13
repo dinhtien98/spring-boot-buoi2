@@ -1,7 +1,9 @@
 package com.example.buoi2bt4.controllers;
 
+import com.example.buoi2bt4.dto.StudentImageDTO;
 import com.example.buoi2bt4.models.Rating;
 import com.example.buoi2bt4.models.Student;
+import com.example.buoi2bt4.models.StudentImage;
 import com.example.buoi2bt4.responses.ApiResponse;
 import com.example.buoi2bt4.responses.StudentListResponse;
 import com.example.buoi2bt4.responses.StudentResponse;
@@ -13,12 +15,19 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("${api.prefix}/student")
@@ -156,5 +165,44 @@ public class StudentController {
                 .status(HttpStatus.OK.value())
                 .build();
         return ResponseEntity.ok(apiResponse);
+    }
+
+    @GetMapping("/getAllImage/{id}")
+    public ResponseEntity<ApiResponse> getAllImage(@PathVariable Long id) {
+        ApiResponse apiResponse = ApiResponse
+                .builder()
+                .data(studentService.getStudentImages(id))
+                .status(HttpStatus.OK.value())
+                .message("Get All Image Success")
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @PostMapping("/upload/{id}")
+    public ResponseEntity<ApiResponse> upload (@PathVariable Long id, @ModelAttribute("files") MultipartFile files) throws IOException {
+        String fileName = storeFile(files);
+        StudentImageDTO studentImageDTO = StudentImageDTO
+                .builder()
+                .imageUrl(fileName)
+                .build();
+        ApiResponse apiResponse = ApiResponse
+                .builder()
+                .status(HttpStatus.OK.value())
+                .message("Upload Success")
+                .data(studentService.saveStudentImage(id,studentImageDTO))
+                .build();
+        return ResponseEntity.ok().body(apiResponse);
+    }
+
+    private String storeFile(MultipartFile file) throws IOException {
+        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+        String uniqueFileName = UUID.randomUUID().toString()+"_"+fileName;
+        java.nio.file.Path uploadDdir= Paths.get("upload");
+        if(!Files.exists(uploadDdir)) {
+            Files.createDirectory(uploadDdir);
+        }
+        java.nio.file.Path destination=Paths.get(uploadDdir.toString(),uniqueFileName);
+        Files.copy(file.getInputStream(),destination, StandardCopyOption.REPLACE_EXISTING);
+        return uniqueFileName;
     }
 }
