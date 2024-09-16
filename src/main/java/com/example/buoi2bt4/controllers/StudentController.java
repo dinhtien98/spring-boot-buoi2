@@ -1,6 +1,7 @@
 package com.example.buoi2bt4.controllers;
 
 import com.example.buoi2bt4.dto.StudentImageDTO;
+import com.example.buoi2bt4.excepations.ResourceNotFoundException;
 import com.example.buoi2bt4.models.Rating;
 import com.example.buoi2bt4.models.Student;
 import com.example.buoi2bt4.models.StudentImage;
@@ -10,10 +11,12 @@ import com.example.buoi2bt4.responses.StudentResponse;
 import com.example.buoi2bt4.services.StudentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
@@ -23,9 +26,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -178,20 +183,50 @@ public class StudentController {
         return ResponseEntity.ok(apiResponse);
     }
 
-    @PostMapping("/upload/{id}")
-    public ResponseEntity<ApiResponse> upload (@PathVariable Long id, @ModelAttribute("files") MultipartFile files) throws IOException {
-        String fileName = storeFile(files);
-        StudentImageDTO studentImageDTO = StudentImageDTO
-                .builder()
-                .imageUrl(fileName)
-                .build();
-        ApiResponse apiResponse = ApiResponse
-                .builder()
+    @PostMapping("/uploads/{id}")
+    public ResponseEntity<ApiResponse>  uploads(@PathVariable Long id, @ModelAttribute("files") List<MultipartFile> files) throws IOException {
+        List<StudentImage> studentImages = new ArrayList<>();
+        int count = 0;
+        for (MultipartFile file : files) {
+            if (file != null) {
+                if (file.getSize() == 0){
+                    count++;
+                    continue;
+                }
+            }
+            String fileName = storeFile(file);
+            StudentImageDTO studentImageDTO = StudentImageDTO.builder()
+                    .imageUrl(fileName)
+                    .build();
+            StudentImage studentImage = studentService.saveStudentImage(id, studentImageDTO);
+            if (studentImage.getStudent() == null) {
+                throw new ResourceNotFoundException("Student khong tim thay voi id: " + id);
+            }
+            studentImages.add(studentImage);
+        }
+
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .data(studentImages)
+                .message("Upload images successfully")
                 .status(HttpStatus.OK.value())
-                .message("Upload Success")
-                .data(studentService.saveStudentImage(id,studentImageDTO))
                 .build();
-        return ResponseEntity.ok().body(apiResponse);
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @GetMapping("/images/{imageName}")
+    public ResponseEntity<?> getImage(@PathVariable String imageName) {
+        try{
+            java.nio.file.Path imagePath = Paths.get("upload/"+imageName);
+            UrlResource resource = new UrlResource(imagePath.toUri());
+            if(resource.exists()){
+                return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(resource);
+            }else{
+                return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(new UrlResource(Paths.get("upload/notfound.jpeg").toUri()));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     private String storeFile(MultipartFile file) throws IOException {
